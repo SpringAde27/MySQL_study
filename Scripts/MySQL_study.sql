@@ -201,3 +201,56 @@ from employee e inner join department d on e.dno = d.deptno
 order by dno asc, salary desc;
 
 
+-- 집단함수
+select avg(salary) as '평균 급여', max(salary) as '최대 급여'
+from employee;
+
+
+create table sungjuk(
+	stdno int,
+	stdname varchar(10),
+	kor int,
+	eng int,
+	math int
+);
+
+insert into sungjuk values (1, '홍길동', 90, 90, 90), (2,'이순신',89, 67, 89), (3, '도깨비', 79, 89, 60);
+
+
+-- 모든 학생의 번호, 성명, 국어, 영어, 수학, 총점, 평균을 검색하시오.
+select stdno, stdname, kor, eng, math,
+	   kor+eng+math as '총점', 
+	   (kor+eng+math)/3 as '평균'    -- 집단함수는 단일값을 반환하기에 sum()사용하면 안됨.
+from sungjuk;
+
+select sum(kor), sum(eng), sum(math)
+from sungjuk;
+
+select count(*)
+from sungjuk;
+
+select count(kor)
+from sungjuk;
+
+select count(distinct stdname)
+from sungjuk;
+
+
+-- 그룹화
+select dno, avg(salary) as avgsal, max(salary) as maxsal
+from employee
+group by dno
+having avg(salary)>=3000000;	-- group by / having 
+
+
+-- UNION 집합연산, 속성의 수와 타입이 같아야 한다. MySQL에서는 union/union all(합집합) 만을 지원.
+-- full outer join을 union으로 구할 수 있다.
+(select dno
+from employee
+where empname='김창섭')
+union all
+(select deptno
+from department
+where deptname='개발')
+
+
