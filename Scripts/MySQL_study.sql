@@ -254,3 +254,99 @@ from department
 where deptname='개발')
 
 
+-- self join
+select e.empname as 사원, m.empname as 직속상사
+from employee as e, employee as m
+where e.manager=m.empno;
+
+
+-- * 서브쿼리 *
+-- 1) where절 서브쿼리 (중첩 서브쿼리)
+-- 2) from절 서브쿼리 (인라인 뷰)
+-- 3) select절 서브쿼리 (스칼라 서브쿼리 - 단일값 리턴 : 집단함수)
+
+
+-- 중첩 서브쿼리 (nested query) 
+select empname, title
+from employee
+where title = (select title from employee where empname='박영권');
+
+
+-- 박영권이 소속된 부서의 모든 사원명, 부서명, 사원번호를 검색하시오.
+select empno, deptname, empname
+from employee e join department d on e.dno=d.deptno  
+where dno = (select dno from employee where empname='박영권');
+
+
+-- in, any, all / 중접질의 결과로 한 개의 어트리뷰트로 이루어진 다수의 투플이 반환될 경우, 외부 where절에서 연산자 사용
+select empno, deptname, empname
+from employee e join department d on e.dno=d.deptno  
+where dno in (
+		select dno
+		from employee
+		where empname='박영권' or empname='조민희'
+);
+
+
+-- IN을 사용한 질의 (p.76)
+select empname
+from employee
+where dno in(select deptno from department where deptname='영업' or deptname='개발');
+
+			
+select empname
+from employee e, department d
+where e.dno=d.deptno and (d.deptname='영업' or d.deptname='개발');
+
+select empname
+from employee e inner join department d on e.dno=d.deptno
+where d.deptname='영업' or d.deptname='개발';
+
+
+select empname
+from employee e inner join department d on e.dno=d.deptno
+where dno in (select deptno from department where deptname='영업' or d.deptname='개발'); 
+
+
+-- EXISTS를 사용한 질의
+select empname
+from employee e
+where exists (
+		select *
+		from department d
+		where e.dno=d.deptno
+		and (deptname='영업' or deptname='개발')
+ );
+ 
+
+-- 상관 중첩 질의 (부질의에서 외부질의의 애트리뷰트 사용 : 상관 부질의)
+select empname, dno, salary
+from employee e
+where salary >
+		(select avg(salary)
+		from employee
+		where dno=e.dno);
+		
+show tables;
+
+
+-- 순위 구하기
+create table rank_tbl(name char(10), score integer);
+
+insert into rank_tbl values
+('a',90), ('b',100), ('c',80), ('d',100), ('e', 60), ('f',95);
+
+select name, score,
+	(select count(*)+1
+	from rank_tbl t2
+	where t2.score > t1.score) as rank 
+from rank_tbl t1
+order by rank;
+
+
+-- 급여를 많이 받는 사원 순으로 순위를 검색하라.
+select empname, salary, (select count(*)+1 from employee sub_e where sub_e.salary>e.salary) as rank 
+from employee e
+order by rank;
+
+
