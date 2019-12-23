@@ -350,3 +350,116 @@ from employee e
 order by rank;
 
 
+-- view
+create view vw_emp_dept as
+select empno, empname, title, manager, salary, deptname
+from employee e join department d on e.dno = d.deptno
+where deptname = '영업'
+order by salary;
+
+select * from vw_emp_dept;
+
+create view vw_empinfo as
+select empname, title, manager, deptname
+from employee e join department d on e.dno = d.deptno;
+
+select * from vw_empinfo;
+
+
+-- 3번 부서의 사원번호, 이름, 직책의 뷰 정의 / 한 릴레이션 위에서 뷰를 정의
+create view vw_deptno_3 as
+select empno, empname, title from employee where dno=3;
+
+select * from vw_deptno_3;
+
+
+-- 기획부에 근무하는 사원의 이름, 직책, 급여로 이루어진 뷰 정의
+create view vw_emp_plan as
+select empname, title, salary
+from employee e, department d
+where e.dno = d.deptno and d.deptname = '기획';
+
+select * from vw_emp_plan;
+
+drop view vw_emp_plan;
+
+select * from employee;
+select * from department;
+
+-- 뷰 갱신
+insert into employee values 
+(1234, '박지선', '사원', 2106 ,2500000, 2);
+
+
+-- 뷰 갱신 / with check option; 데이터 무결성 보장
+create view vw_emp_dno (empno, empname, title, dno) as
+select empno, empname, title, dno
+from employee
+where dno=2
+with check option;
+
+select * from vw_emp_dno;
+drop view vw_emp_dno;
+
+
+-- 뷰를 통해 추가 또는 수정시, 뷰를 정의하는 select문의 where절 기준에 맞지 않으면 실행거부.
+update vw_emp_dno
+set dno=3
+where empno=4377;
+
+insert into vw_emp_dno values (5555, '홍길동', '사원', 2);
+
+
+-- 뷰의 장점 / 뷰는 DB구조가 바뀌어도 기존의 질의(응용P)를 다시 작성할 필요성을 줄이는데 사용될 수 있다.
+create table emp1(
+	empno integer not null,
+	empname varchar(20),
+	salary integer,
+	primary key(empno)
+);
+
+insert into emp1(select empno, empname, salary from employee);
+select * from emp1;
+
+
+create table emp2(
+	empno integer not null,
+	title varchar(10),
+	manager integer,
+	dno integer,
+	foreign key(empno) references emp1(empno),
+	foreign key(manager) references emp1(empno)
+);
+
+insert into emp2(select empno, title, manager, dno from employee);
+
+select * from emp2;
+
+drop table employee;
+
+create view employee as
+select emp1.empno, emp1.empname, emp2.title, emp2.manager, emp1.salary, emp2.dno
+from emp1 join emp2 on emp1.empno = emp2.empno;
+
+select * from employee;
+
+drop view employee;
+
+
+-- 집단함수를 포함한 뷰에 대한 갱신이 이루어 지지 않는다.
+create view emp_avgsal as
+select dno, avg(salary)
+from employee
+group by dno
+having dno is not null;
+
+select * from emp_avgsal;
+
+
+-- 집단함수를 포함한 뷰에 대한 갱신이 이루어 지지 않는다.
+update avgsal set avg(salary)=4000000
+where dno=3;
+
+insert into emp_avgsal values (3, 3200000);
+
+
