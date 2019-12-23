@@ -477,3 +477,79 @@ rollback;
 commit;
 
 
+-- Trigger
+show triggers from mysql_study;
+
+-- 새로운 사원이 입사할 때 마다, 급여가 1,500,000원 미안일 경우는 급여를 10%인상하는 트리거를 작성하라.
+-- 이벤트 : 새로운 사원 투플이 삽일될 때
+-- 조건 : salary < 1,500,000
+-- 동작 : 급여를 10% 인상
+-- 해당 테이블 선택 - 트리거 폴더 선택 - create new trigger
+
+DELIMITER $$
+$$
+CREATE TRIGGER raise_salary
+BEFORE INSERT ON employee
+FOR EACH ROW
+BEGIN
+	if NEW.salary < 1500000 then
+		SET NEW.salary= NEW.salary * 1.1;
+	end if;
+end$$
+DELIMITER $$
+
+show warnings;
+
+insert into employee values(4000, '김태희', '사원', 3011, 1400000, 2);
+select * from employee;
+delete from employee where empno=4000;
+
+
+-- tri_high_salary
+DELIMITER $$
+$$
+CREATE trigger tri_high_salary
+after insert on employee
+for each row
+begin
+	insert into high_salary values (new.empname, new.salary, new.title);
+end$$
+DELIMITER $$
+
+create table high_salary as 
+select empname, salary, title from employee;
+select * from high_salary;
+
+
+-- tri_high_salary_up
+DELIMITER $$
+$$
+CREATE TRIGGER tri_high_salary_up
+AFTER update
+ON employee FOR EACH row
+begin
+	update high_salary
+	set title = new.title, salary = new.salary
+	where empnmae = new.empname;
+end$$
+DELIMITER $$
+
+update employee
+set title='대리', salary=1600000
+where empno=4000;
+
+
+-- tri_high_salary_del
+DELIMITER $$
+$$
+CREATE TRIGGER tri_high_salary_del
+AFTER delete
+ON employee FOR EACH row
+begin
+	delete from high_salary where empname=old.empname;
+end$$
+DELIMITER $$
+
+delete from employee where empname='김태희';
+
+
