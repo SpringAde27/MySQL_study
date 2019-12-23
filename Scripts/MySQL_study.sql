@@ -463,3 +463,17 @@ where dno=3;
 insert into emp_avgsal values (3, 3200000);
 
 
+-- Commit / Rollback
+select * from employee;
+
+set autocommit = 0;
+
+update employee
+set title = '대리'
+where empno = 1234;
+
+rollback;
+
+commit;
+
+
