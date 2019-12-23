@@ -55,3 +55,61 @@ alter table employee modify column title char(10);
 alter table employee change column name empname varchar(20);	-- 컬럼 명, 타입 변경 --
 
 
+-- 데이터 삽입
+insert into department values
+(1, '영업', 8),
+(2, '기획', 10),
+(3, '개발', 9),
+(4, '총무', 7);
+
+-- 삽입순서 중요 (외래키 관계)
+insert into employee values
+(4377, '이성래', '사장', null, 5000000, 2),
+(3426, '박영권', '과장', 4377, 3000000, 1),
+(3011, '이수민', '부장', 4377, 4000000, 3),
+(1003, '조민희', '과장', 4377, 3000000, 2),
+(3427, '최종철', '사원', 3011, 1500000, 3),
+(1365, '김상원', '사원', 3426, 1500000, 1),
+(2106, '김창섭', '대리', 1003, 2500000, 2);
+
+-- CRUD
+insert into department(deptno, deptname) values (5, '연구');
+
+delete from department where deptno = 5;
+
+update employee set dno=3, salary=salary*1.05 where empno=2106;
+
+-- case
+select empname, title,
+	case
+		when salary >= 4000000 then '3시퇴근'
+		when salary >= 3000000 then '5시퇴근'
+		when salary >= 2000000 then '7시퇴근'
+		else '야근'
+	end as '퇴근시간', salary
+from employee;
+
+select distinct title from employee;  -- distinct
+select all title from employee;  -- all
+
+
+-- 조민희가 속힌 부서명을 검색하시오. "중첩질의"
+select deptname
+from department
+where deptno = (select dno from employee where empname='조민희');
+
+
+-- 부서별 급여 평균
+select dno, avg(salary) '급여평균'
+from employee
+group by dno;
+
+
+-- 부서별 급여평균이 300만 이상인 부서의 평균과 부서번호를 출력하시오. / having절은  group by절과 함께 사용해야 한다.
+select dno as 부서, avg(salary)  '급여평균'
+from employee
+group by dno
+having avg(salary)>=3000000
+order by dno desc;
+
+
