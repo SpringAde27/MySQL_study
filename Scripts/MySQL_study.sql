@@ -113,3 +113,91 @@ having avg(salary)>=3000000
 order by dno desc;
 
 
+-- join
+create table test_A(
+	idx int(1),
+	ch char(1)
+);
+
+insert into test_A values (1,'a'), (2,'b');
+	
+	
+create table test_B(
+	idx int(1),
+	txt char(1)
+);
+
+insert into test_B values (1,'가'),(2,'나'),(3,'다');
+
+
+select test_A.idx, ch, test_B.idx, txt
+from test_A, test_B;
+
+select a.ch, a.idx, b.idx, b.txt
+from test_A a, test_B b;
+
+
+-- 동등조인(equi join), 자연조인
+select a.ch, a.idx, b.idx, b.txt
+from test_A a, test_B b
+where a.idx=b.idx;
+
+
+-- DB에서는 대소문자 구분 안함. / equi join=inner join
+select a.ch, a.idx, b.idx, b.txt
+from test_a a inner join test_b b on a.idx=b.idx;
+
+
+-- join
+select *
+from employee as e, department as d
+where e.dno = d.deptno;
+
+select *
+from employee e 
+inner join department d 
+on e.dno=d.deptno;
+
+
+-- 연산자 조건
+select empname, salary
+from employee
+where title='과장' and dno=1;
+
+
+select empname, salary
+from employee
+where title='과장' and dno<>1;
+
+
+select empname, title, salary
+from employee
+where salary>=3000000 and salary<=4000000;  -- where salary between 3000000 and 4000000;
+
+
+select * from employee
+where dno = 1 or dno = 3; -- where dno in (1,3);
+
+
+select empname, salary, salary*1.1 as newsalary
+from employee
+where title='과장';
+
+
+select *
+from employee
+where manager is null;
+
+
+select salary, title, empname
+from employee
+where dno = 3
+order by salary;
+
+
+-- 부서번호별 오름차순, 급여별 내림차순으로 검색
+select *
+from employee e inner join department d on e.dno = d.deptno
+order by dno asc, salary desc;
+
+
